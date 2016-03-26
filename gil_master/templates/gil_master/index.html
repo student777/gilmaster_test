@@ -1,0 +1,177 @@
+{%extends "gil_master/layout.html"%}
+{%block content%}
+{% load staticfiles %}
+<div id="top-nav" class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">My Map</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" role="button" data-toggle="dropdown" href="#"> About <span class="caret"></span></a>
+                    <ul id="g-account-menu" class="dropdown-menu" role="menu">
+                        <li><a href="#">My Profile</a></li>
+                    </ul>
+                </li>
+                <li><a href="#"> Contact </a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- /container -->
+<!-- /Header -->
+        <header>
+            <div class="container">
+                <div class="intro-text">
+                    <div class="intro-lead-in"><font color='black'>Welcome To My Map Service!</font></div>
+                    <div class="intro-heading">Make Your Own Map</div>
+                    <a href="#services" class="page-scroll btn btn-xl">Start</a>
+                </div>
+            </div>
+        </header>
+</div>
+
+<!-- Main -->
+<div class="container-fluid" id="post_list">
+    <div class="row">
+        <div class="col-sm-3">
+            <!-- Left column -->
+            <a href="#"><strong> Post </strong></a>
+
+            <hr>
+
+            <ul class="nav nav-stacked" style="overflow:scroll; height:500px; padding:10px; margin-top:50px;">
+                <li class="nav-header"> <a href="#" data-toggle="collapse" data-target="#userMenu">Lists</a>
+                    <ul class="nav nav-stacked collapse in" id="userMenu">
+                    {%for post in post_list%}
+                    <li class="post" {% if post.lnglat %}data-lat="{{ post.lat }}" data-lng="{{ post.lng }}"{% endif %} {% if post.photo %}
+                    data-content="<h4>{{ post.title }}</h4> <hr/> {{post.content}} <hr/> <img src='{{post.photo.url}}'/>" {%endif%} >
+                    <li class='active' stlye='font-color:blue'> <a href='/{{post.id}}/'><font color='black'> &nbsp;&nbsp;{{post.title}} </font></a>  </li>
+                    </li>
+                    <div style = 'text-align:right;'><a href="{% url 'delete' post.pk %}"> delete </a></div>
+                    {%endfor%}
+                    </ul>
+                </li>
+
+                <li class="nav-header"> <a href="#" data-toggle="collapse" data-target="#menu2"> Reports </a>
+
+                    <ul class="nav nav-stacked collapse" id="menu2">
+                        <li><a href="#"><font color='black'>&nbsp;&nbsp;Information</font> &amp; Stats</a>
+                    </ul>
+                </li>
+                <li class="nav-header">
+                    <a href="#" data-toggle="collapse" data-target="#menu3"> Social Media </a>
+                    <ul class="nav nav-stacked collapse" id="menu3">
+                        <li><a href=""><i class="glyphicon glyphicon-circle"></i> <font color='black'>&nbsp;&nbsp;Facebook</font></a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
+            <hr>
+
+            <p class="text">
+                    <a href="{% url "new" %}" class="nav nav-stacked"> New </a>
+            </p>
+        </div>
+        <!-- /col-3 -->
+        <div class="col-sm-9">
+
+            <!-- column 2 -->
+            <ul class="list-inline pull-right">
+                <li><a href="#"><i class="glyphicon glyphicon-cog"></i></a></li>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-comment"></i><span class="count">3</span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">1. Is there a way..</a></li>
+                        <li><a href="#">2. Hello, admin. I would..</a></li>
+                        <li><a href="#"><strong>All messages</strong></a></li>
+                    </ul>
+                </li>
+                <li><a href="#"><i class="glyphicon glyphicon-user"></i></a></li>
+                <li><a title="Add Widget" data-toggle="modal" href="#addWidgetModal"><span class="glyphicon glyphicon-plus-sign"></span> Add Widget</a></li>
+            </ul>
+            <a href="#"><strong>{% comment %}
+                <i class="glyphicon glyphicon-dashboard"></i>
+            {% endcomment %} My Map</strong></a>
+            <hr>
+
+
+        <!-- Marketing Icons Section -->
+        <div class="col-md-12">
+            <div>
+            <script src="https://maps.googleapis.com/maps/api/js"></script>
+            <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+            <script>
+            // In the following example, markers appear when the user clicks on the map.
+            // Each marker is labeled with a single alphabetical character.
+            var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            var labelIndex = 0;
+
+            $(function() {
+                var seoul = { lat: 37.6, lng: 127 };
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: seoul
+                });
+                $("#post_list .post[data-lat]").each(function() {
+                    var lat = $(this).data("lat");
+                    var lng = $(this).data("lng");
+                    var content = $(this).data("content");
+
+                    var marker = new google.maps.Marker({
+                        position: { lat: lat, lng: lng },
+                        map: map
+
+                    });
+
+                    marker.content = content;
+                    marker.addListener('click', function() {
+                        var content = this.content;
+                        var infowindow = new google.maps.InfoWindow({
+                          content: content,
+                          maxWidth: 200
+                        });
+                        infowindow.open(map, marker);
+                    });
+                });
+                // This event listener calls addMarker() when the map is clicked.
+                google.maps.event.addListener(map, 'click', function(event) {
+                addMarker(event.latLng, map);
+                window.open('new/?lat=' + event.latLng.lat() + "&lng=" + event.latLng.lng());
+                });
+                // Add a marker at the center of the map.
+                // addMarker(seoul, map);
+            });
+            // Adds a marker to the map.hac
+            function addMarker(location, map) {
+              // Add the marker at the clicked location, and add the next-available label
+              // from the array of alphabetical characters.
+              var marker = new google.maps.Marker({
+                position: location,
+                label: labels[labelIndex++ % labels.length],
+                map: map,
+                attribution: {
+                  source: 'Google Maps JavaScript API',
+                  webUrl: 'https://developers.google.com/maps/'
+                },
+              });
+
+              marker.addListener('click', function() {
+                // window.open('new/')
+                alert("clicked");
+              });
+            }
+            </script>
+            <div id="map" style="width:100%;height:550px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="text-center">Hackathon in <a href="http://www.naver.com"><strong><font color='red'>P</font>.rogarmming</strong></a></footer>
+{%endblock%}

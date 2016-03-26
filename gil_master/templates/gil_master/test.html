@@ -1,0 +1,232 @@
+{% extends "gil_master/layout.html" %}
+
+
+
+{% block extra_head%}
+<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=777b2b04723fbf83b9718f0ec54853aa"></script>
+{% endblock %}
+
+
+{% block content %}
+{% load staticfiles %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            {%if messages%}
+                {%for message in messages%}
+                    <div {%if message.tags%} class="alert alert-{{message.tags}}"{%endif%}>
+                        {{message}}
+                    </div>
+                {%endfor%}
+            {%endif%}
+        </div>
+    </div>
+</div>
+
+
+<div id="top-nav" class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">My Map</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" role="button" data-toggle="dropdown" href="#"> About <span class="caret"></span></a>
+                    <ul id="g-account-menu" class="dropdown-menu" role="menu">
+                        <li><a href="#">My Profile</a></li>
+                    </ul>
+                </li>
+                <li><a href="#"> Contact </a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- /container -->
+    <header>
+        <div class="container">
+            <div class="intro-text">
+                <div class="intro-lead-in"><font color='black'>Welcome To My Map Service!</font></div>
+                <div class="intro-heading">Make Your Own Map</div>
+                <a href="#services" class="page-scroll btn btn-xl">Start</a>
+            </div>
+        </div>
+    </header>
+</div>
+
+
+<div class="container-fluid" id="post_list">
+    <div class="row">
+        <div class="col-sm-3">
+            <a href="#"><strong> Post </strong></a>
+            <hr>
+            <ul class="nav nav-stacked" style="overflow:scroll; height:500px; padding:10px; margin-top:50px;">
+                {%for post in post_list%}
+                <li class="post" {% if post.lnglat %}data-lat="{{ post.lat }}" data-lng="{{ post.lng }}"{% endif %} {% if post.photo %}
+                data-content="<h4>{{ post.title }}</h4> <hr/> {{post.content}} <hr/> <img src='{{post.photo.url}}'/>" {%endif%} >
+                <li class='active' stlye='font-color:blue'> <a href='/{{post.id}}/'><font color='black'> &nbsp;&nbsp;{{post.title}} </font></a>  </li>
+                </li>
+                <div style = 'text-align:right;'><a href="{% url 'delete' post.pk %}"> delete </a></div>
+                {%endfor%}
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            <div>
+                <a href="#"><strong>My Map</strong></a>
+                <ul class="list-inline pull-right">
+                    <li><a href="{% url "new" %}" class="nav nav-stacked"> New </a></li>
+                    <li><a href="#"><i class="glyphicon glyphicon-cog"></i></a></li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-comment"></i><span class="count">3</span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">1. Is there a way..</a></li>
+                            <li><a href="#">2. Hello, admin. I would..</a></li>
+                            <li><a href="#"><strong>All messages</strong></a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#"><i class="glyphicon glyphicon-user"></i></a></li>
+                    <li><a title="Add Widget" data-toggle="modal" href="#addWidgetModal"><span class="glyphicon glyphicon-plus-sign"></span> Add Widget</a></li>
+                </ul>
+                <hr>
+            </div>
+
+            <div>
+                <div id = "testMap" style="border:1px solid #000; width:500px; height:400px; margin:20px;"></div>
+                <button onclick="javascript:addClickEvent();">클릭 이벤트 추가</button>
+                <button onclick="javascript:removeClickEvent();">클릭 이벤트 해제</button>
+                <script type="text/javascript">
+                    var oPoint = new nhn.api.map.LatLng(37.5010226, 127.0396037);
+                    nhn.api.map.setDefaultPoint('LatLng');
+                    oMap = new nhn.api.map.Map('testMap', {
+                                            point : oPoint,
+                                            zoom : 10, // - 초기 줌 레벨은 10으로 둔다.
+                                            enableWheelZoom : false,
+                                            enableDragPan : true,
+                                            enableDblClickZoom : false,
+                                            mapMode : 0,
+                                            activateTrafficMap : false,
+                                            activateBicycleMap : false,
+                                            minMaxLevel : [ 1, 14 ],
+                                            size : new nhn.api.map.Size(500, 400)
+                    });
+
+                    var eventFlag = false; // - 동일한 이벤트가 무한정 추가되는 것을 막기 위한 flag.
+
+                    var clickEvent = function(pos){ // - 클릭 이벤트 핸들러
+                            window.open('/new/?lat=' + pos.point.getX() + "&lng=" + pos.point.getY());
+                    };
+
+                    function addClickEvent(){
+                            if(!eventFlag){
+                                    oMap.attach("click",clickEvent); // - 이벤트 추가. 지도에서의 이벤트 추가는 attach를 통해 이루어진다.
+                                    eventFlag = true;
+                            }
+                    }
+
+                    function removeClickEvent(){
+                            oMap.detach("click", clickEvent); // - 이벤트 해제. 지도에서의 이벤트 해제는 detach를 통해 이루어진다.
+                            eventFlag = false;
+                    }
+                    var mapZoom = new nhn.api.map.ZoomControl(); // - 줌 컨트롤 선언
+                    mapZoom.setPosition({left:80, bottom:40}); // - 줌 컨트롤 위치 지정
+                    oMap.addControl(mapZoom); // - 줌 컨트롤 추가.
+                </script>
+            </div>
+
+
+            <hr><hr><hr><hr><hr>
+
+
+            <div id = "testMap2" style="border:1px solid #000; width:500px; height:400px; margin:20px;"></div>
+                <script type="text/javascript">
+                    var oCenterPoint = new nhn.api.map.LatLng(37.1010226, 127.6396037);
+                    nhn.api.map.setDefaultPoint('LatLng');
+                    oMap2 = new nhn.api.map.Map('testMap2', {
+                                            point : oCenterPoint,
+                                            zoom : 10, // - 초기 줌 레벨은 10으로 둔다.
+                                            enableWheelZoom : false,
+                                            enableDragPan : true,
+                                            enableDblClickZoom : false,
+                                            mapMode : 0,
+                                            activateTrafficMap : false,
+                                            activateBicycleMap : false,
+                                            minMaxLevel : [ 1, 14 ],
+                                            size : new nhn.api.map.Size(500, 400)
+                    });
+                    var markerCount = 0;
+
+                    var oSize = new nhn.api.map.Size(28, 37);
+                    var oOffset = new nhn.api.map.Size(14, 37);
+                    var oIcon = new nhn.api.map.Icon('http://static.naver.com/maps2/icons/pin_spot2.png', oSize, oOffset);
+
+                    var mapInfoTestWindow = new nhn.api.map.InfoWindow(); // - info window 생성
+                    mapInfoTestWindow.setVisible(false); // - infowindow 표시 여부 지정.
+                    oMap2.addOverlay(mapInfoTestWindow);     // - 지도에 추가.
+
+                    var oLabel = new nhn.api.map.MarkerLabel(); // - 마커 라벨 선언.
+                    oMap2.addOverlay(oLabel); // - 마커 라벨 지도에 추가. 기본은 라벨이 보이지 않는 상태로 추가됨.
+
+                    mapInfoTestWindow.attach('changeVisible', function(oCustomEvent) {
+                            if (oCustomEvent.visible) {
+                                    oLabel.setVisible(false);
+                            }
+                    });
+
+
+                    oMap2.attach('mouseenter', function(oCustomEvent) {
+                            var oTarget = oCustomEvent.target;
+                            // 마커위에 마우스 올라간거면
+                            if (oTarget instanceof nhn.api.map.Marker) {
+                                    var oMarker = oTarget;
+                                    oLabel.setVisible(true, oMarker); // - 특정 마커를 지정하여 해당 마커의 title을 보여준다.
+                            }
+                    });
+
+                    oMap2.attach('mouseleave', function(oCustomEvent) {
+                            var oTarget = oCustomEvent.target;
+                            // 마커위에서 마우스 나간거면
+                            if (oTarget instanceof nhn.api.map.Marker) {
+                                    oLabel.setVisible(false);
+                            }
+                    });
+
+                    oMap2.attach('click', function(oCustomEvent) {
+                            var oPoint = oCustomEvent.point;
+                            var oTarget = oCustomEvent.target;
+                            mapInfoTestWindow.setVisible(false);
+                            // 마커 클릭하면
+                            if (oTarget instanceof nhn.api.map.Marker) {
+                                    // 겹침 마커 클릭한거면
+                                    if (oCustomEvent.clickCoveredMarker) {
+                                            return;
+                                    }
+                                    // - InfoWindow 에 들어갈 내용은 setContent 로 자유롭게 넣을 수 있습니다. 외부 css를 이용할 수 있으며,
+                                    // - 외부 css에 선언된 class를 이용하면 해당 class의 스타일을 바로 적용할 수 있습니다.
+                                    // - 단, DIV 의 position style 은 absolute 가 되면 안되며,
+                                    // - absolute 의 경우 autoPosition 이 동작하지 않습니다.
+                                    mapInfoTestWindow.setContent('<DIV style="border-top:1px solid; border-bottom:2px groove black; border-left:1px solid; border-right:2px groove black;margin-bottom:1px;color:black;background-color:white; width:auto; height:auto;">'+
+                                    '<span style="color: #000000 !important;display: inline-block;font-size: 12px !important;font-weight: bold !important;letter-spacing: -1px !important;white-space: nowrap !important; padding: 2px 2px 2px 2px !important">' +
+                                    'Hello World <br /> ' + oTarget.getPoint()
+                                    +'<span></div>');
+                                    mapInfoTestWindow.setPoint(oTarget.getPoint());
+                                    mapInfoTestWindow.setVisible(true);
+                                    mapInfoTestWindow.setPosition({right : 15, top : 30});
+                                    mapInfoTestWindow.autoPosition();
+                                    return;
+                            }
+                            var oMarker = new nhn.api.map.Marker(oIcon, { title : '마커 : ' + oPoint.toString() });
+                            oMarker.setPoint(oPoint);
+                            oMap2.addOverlay(oMarker);
+                    });
+                </script>
+        </div>
+    </div>
+</div>
+<!-- /Main -->
+
+{%endblock%}

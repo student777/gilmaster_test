@@ -1,0 +1,99 @@
+{% load staticfiles %}
+<!doctype html>
+<html>
+<head>
+    <title>길선생</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="generator" content="Bootply" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        }
+    #map {
+        height: 100%;
+        width:1000%;
+        }
+    .navbar-static-top {
+        margin-bottom:20px;
+    }
+
+    i {
+        font-size:16px;
+    }
+    .nav > li > a {
+        color:#787878;
+    }
+    footer {
+        margin-top:20px;
+        padding-top:20px;
+        padding-bottom:20px;
+        background-color:#efefef;
+    }
+    .nav>li .count {
+        position: absolute;
+        bottom: 12px;
+        right: 6px;
+        font-size: 9px;
+        background: rgba(51,200,51,0.55);
+        color: rgba(255,255,255,0.9);
+        line-height: 1em;
+        padding: 2px 4px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        -ms-border-radius: 10px;
+        -o-border-radius: 10px;
+        border-radius: 10px;
+    }
+    #footer {
+        background-color: #333333;
+        line-height: 20px;
+        padding: 30px 20px;
+        margin-top: 60px;
+    }
+
+    .alert-debug {
+        background-color: #eeeeee;
+        border-color: #eeeeee;
+        color: #333;
+    }
+</style>
+<script src="{% static "jquery-1.11.3.js"%}"></script>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="{% static "jquery.toaster.js" %}"></script>
+<link href="{% static "about/css/bootstrap.min.css"%}" rel="stylesheet">
+<link href="{% static "about/css/agency.css"%}" rel="stylesheet">
+<link href="{% static "about/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet" type="text/css">
+
+{% block extra_head %}
+{% endblock %}
+</head>
+
+
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            {%if messages%}
+                {%for message in messages%}
+                    <div {%if message.tags%} class="alert alert-{{message.tags}}"{%endif%}>
+                        {{message}}
+                    </div>
+                {%endfor%}
+            {%endif%}
+        </div>
+    </div>
+</div>
+{% block content %}
+{% endblock %}
+</body>
+
+</html>
