@@ -16,24 +16,23 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
+from gil_master import views
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'gil_master.views.index', name='index'),
-    url(r'^(?P<pk>\d+)/$', 'gil_master.views.detail', name='detail'),
-    url(r'^new/$', 'gil_master.views.new', name='new'),
-    url(r'^test/$', 'gil_master.views.test', name='test'),
-    url(r'^test2/$', 'gil_master.views.test2', name='test2'),
-    url(r'^(?P<pk>\d+)/edit/$', 'gil_master.views.edit', name='edit'),
-    url(r'^(?P<pk>\d+)/comment/new/$', 'gil_master.views.comment_new', name='comment_new'),
-    url(r'^(?P<pk>\d+)/delete/$', 'gil_master.views.delete', name='delete'),
-    url(r'^(?P<pk>\d+)/(?P<comment_pk>\d+)/comment/delete/$', 'gil_master.views.comment_delete', name='comment_delete'),
+    url(r'^$', views.index, name='index'),
+    url(r'^(?P<pk>\d+)/$', views.detail, name='detail'),
+    url(r'^new/$', views.new, name='new'),
+    url(r'^test/$', views.test, name='test'),
+    url(r'^test2/$', views.test2, name='test2'),
+    url(r'^(?P<pk>\d+)/edit/$', views.edit, name='edit'),
+    url(r'^(?P<pk>\d+)/comment/new/$', views.comment_new, name='comment_new'),
+    url(r'^(?P<pk>\d+)/delete/$', views.delete, name='delete'),
+    url(r'^(?P<pk>\d+)/(?P<comment_pk>\d+)/comment/delete/$', views.comment_delete, name='comment_delete'),
 ]
 
 
 if settings.DEBUG:
-    urlpatterns += [
-        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-            'document_root': settings.MEDIA_ROOT
-            })
-    ]
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
